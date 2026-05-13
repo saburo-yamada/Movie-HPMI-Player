@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>映画 ヒプノシスマイク -Division Rap Battle-』プレーヤー</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        #player-container {
+            width: 95%;
+            max-width: 1200px;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            margin: 0 auto 20px auto;
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        #current-video { font-size: 24px; color: #00ffcc; margin-bottom: 10px; }
+        #status-text { color: #aaa; font-size: 16px; }
+        #choices-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        
+
+        
+        button {
+            background-color: #333333;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: White;
+
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        button[data-id="BB"]  { background-color: #ff0000; } 
+        button[data-id="BAT"] { background-color: #73399a; } 
+        button[data-id="MTC"] { background-color: #0043ff; } 
+        button[data-id="DH"]  { background-color: #ff5f00; } 
+        button[data-id="FP"]  { background-color: #ffc700; }
+        button[data-id="MTR"] { background-color: #a8a8a8; } 
+        button[data-id="COK"] { background-color: #ff0081; }
+
+        button:hover {
+            filter: brightness(85%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="player-container">
+    <div id="status-text">Now Playing</div>
+    <video id="main-video" controls muted>
+        Your browser does not support the video tag.
+    </video>
+    </div>
+
+    <div id="choices-container"></div>
+
+    <button class="reset-btn" onclick="initApp()" style="display: none;" id="reset-btn">Replay</button>
+
+    <p>
+
+    <div id="history-log">選択肢：なし</div>
+
+    <script>
+        const labelMap = {
+            'BB':  'Buster Bros!!!',
+            'BAT': 'Bad Ass Temple',
+            'MTC': 'MAD TRIGGER CREW',
+            'DH':  'どついたれ本舗',
+            'FP':  'Fling Posse',
+            'MTR': '麻天狼',
+            'COK': '中王区'
+        };
+
+        let displayHistory = [];
+        let logicHistory = [];
+        let currentStep = 1;
+
+        const currentVideoEl = document.getElementById('current-video');
+        const choicesContainer = document.getElementById('choices-container');
+        const historyLog = document.getElementById('history-log');
+        const resetBtn = document.getElementById('reset-btn');
+        const statusText = document.getElementById('status-text');
+
+        function initApp() {
+            logicHistory = [];   
+            displayHistory = [];
+            currentStep = 1;
+            
+            updateHistoryLog(); 
+            
+            updateVideo("./title_t12.mkv", "First Stage First Battle");
+            
+            const resetBtn = document.getElementById('reset-btn');
+            if (resetBtn) resetBtn.style.display = 'none';
+            
+            renderChoices([
+                { id: 'BB', file: './title_t11.mkv' },
+                { id: 'BAT', file: './title_t10.mkv' }
+            ]);
+        }
+
+        function updateVideo(file, status) {
+            const video = document.getElementById('main-video');
+
+            video.src = file;
+            
+            video.load();
+
+            const playPromise = video.play();
+
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Autoplay has been blocked. Please click the player button manually.");
+                });
+            }
+
+            const statusEl = document.getElementById('status-text');
+            if (statusEl) {
+                statusEl.innerText = status;
+            }
+        }
+
+        function renderChoices(choices) {
+            choicesContainer.innerHTML = '';
+            choices.forEach(choice => {
+                const btn = document.createElement('button');
+                
+                const displayText = labelMap[choice.id] || choice.id;
+                
+                btn.innerText = `${displayText}`;
+                btn.setAttribute('data-id', choice.id); 
+                btn.title = `Path: ${choice.file}`; 
+                
+                btn.onclick = () => handleChoice(choice.id, choice.file);
+                choicesContainer.appendChild(btn);
+            });
+        }
+
+        function updateHistoryLog() {
+            historyLog.innerText = `選択肢：${displayHistory.length > 0 ? displayHistory.join(' ➔ ') : 'なし'}`;
+        }
+
+        function handleChoice(choiceId, file) {
+            logicHistory.push(choiceId); 
+            displayHistory.push(labelMap[choiceId] || choiceId); 
+            
+            const historyLog = document.getElementById('history-log');
+            historyLog.innerText = `選択肢：${displayHistory.join(' ➔ ')}`;
+
+            if (currentStep === 1) {
+                updateVideo(file, "First Stage Second Battle");
+                currentStep++;
+                renderChoices([
+                    { id: 'MTC', file: './title_t09.mkv' },
+                    { id: 'DH', file: './title_t08.mkv' }
+                ]);
+            } 
+            else if (currentStep === 2) {
+                updateVideo(file, "First Stage Third Battle");
+                currentStep++;
+                renderChoices([
+                    { id: 'FP', file: './title_t57.mkv' },
+                    { id: 'MTR', file: './title_t55.mkv' }
+                ]);
+            } 
+            else if (currentStep === 3) {
+                handleThirdChoiceOutcome();
+            }
+            else if (currentStep === 4) {
+                handleFourthChoiceOutcome(choiceId);
+            }
+            else if (currentStep === 5) {
+                updateVideo(file, "Ending");
+                choicesContainer.innerHTML = '';
+                resetBtn.style.display = 'block';
+            }
+        }
+
+        function handleThirdChoiceOutcome() {
+
+            const path = logicHistory.join(',');
+            currentStep++;
+            let jumpFile = '';
+            let nextChoices = [];
+
+            if (path === 'BAT,DH,FP') {
+                jumpFile = './title_t01.mkv';
+                nextChoices = [{id:'BAT', file:'./title_t48.mkv'}, {id:'DH', file:'./title_t40.mkv'}, {id:'FP', file:'./title_t35.mkv'}];
+            } else if (path === 'BAT,DH,MTR') {
+                jumpFile = './title_t00.mkv';
+                nextChoices = [{id:'BAT', file:'./title_t47.mkv'}, {id:'DH', file:'./title_t39.mkv'}, {id:'MTR', file:'./title_t31.mkv'}];
+            } else if (path === 'BB,DH,FP') {
+                jumpFile = './title_t05.mkv';
+                nextChoices = [{id:'BB', file:'./title_t52.mkv'}, {id:'DH', file:'./title_t42.mkv'}, {id:'FP', file:'./title_t37.mkv'}];
+            } else if (path === 'BB,DH,MTR') {
+                jumpFile = './title_t04.mkv';
+                nextChoices = [{id:'BB', file:'./title_t51.mkv'}, {id:'DH', file:'./title_t41.mkv'}, {id:'MTR', file:'./title_t33.mkv'}];
+            } else if (path === 'BAT,MTC,FP') {
+                jumpFile = './title_t03.mkv';
+                nextChoices = [{id:'BAT', file:'./title_t59.mkv'}, {id:'MTC', file:'./title_t44.mkv'}, {id:'FP', file:'./title_t36.mkv'}];
+            } else if (path === 'BAT,MTC,MTR') {
+                jumpFile = './title_t02.mkv';
+                nextChoices = [{id:'BAT', file:'./title_t49.mkv'}, {id:'MTC', file:'./title_t43.mkv'}, {id:'MTR', file:'./title_t32.mkv'}];
+            } else if (path === 'BB,MTC,FP') {
+                jumpFile = './title_t07.mkv';
+                nextChoices = [{id:'BB', file:'./title_t54.mkv'}, {id:'MTC', file:'./title_t46.mkv'}, {id:'FP', file:'./title_t38.mkv'}];
+            } else if (path === 'BB,MTC,MTR') {
+                jumpFile = './title_t06.mkv';
+                nextChoices = [{id:'BB', file:'./title_t53.mkv'}, {id:'MTC', file:'./title_t45.mkv'}, {id:'MTR', file:'./title_t34.mkv'}];
+            }
+
+            updateVideo(jumpFile, "Second Stage");
+            renderChoices(nextChoices);
+        }
+
+        function handleFourthChoiceOutcome(choice4) {
+            currentStep++;
+            let jumpFile = '';
+            let nextChoices = [];
+
+            const mapping = {
+                'BAT': { jump: './title_t29.mkv', next: [{id:'BAT', f:'./title_t23.mkv'}, {id:'COK', f:'./title_t17.mkv'}] },
+                'BB':  { jump: './title_t30.mkv', next: [{id:'BAT', f:'./title_t24.mkv'}, {id:'COK', f:'./title_t18.mkv'}] },
+                'DH':  { jump: './title_t27.mkv', next: [{id:'DH', f:'./title_t21.mkv'}, {id:'COK', f:'./title_t15.mkv'}] },
+                'FP':  { jump: './title_t26.mkv', next: [{id:'FP', f:'./title_t20.mkv'}, {id:'COK', f:'./title_t14.mkv'}] },
+                'MTC': { jump: './title_t28.mkv', next: [{id:'MTC', f:'./title_t22.mkv'}, {id:'COK', f:'./title_t16.mkv'}] },
+                'MTR': { jump: './title_t25.mkv', next: [{id:'MTR', f:'./title_t19.mkv'}, {id:'COK', f:'./title_t13.mkv'}] }
+            };
+
+            const res = mapping[choice4];
+            updateVideo(res.jump, `Final Stage`);
+            renderChoices(res.next.map(item => ({ id: item.id, file: item.f })));
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
