@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>映画『ヒプノシスマイク - Division Rap Battle -』プレーヤー</title>
     <style>
-            html, body {
+        html, body {
             height: 100%;
             margin: 0;
             overflow: scroll;
@@ -15,7 +15,14 @@
             font-family: "Microsoft JhengHei", Arial, sans-serif;
             background-color: #1e1e1e;
             color: #ffffff;
-        
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+
         #player-container {
             width: 100%;
             height: 85%;
@@ -27,23 +34,12 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             flex-shrink: 0;
         }
-            
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 0px;
-            box-sizing: border-box;
-        }
 
         video {
             width: 100%;
             height: 100%;
             object-fit: contain;
         }
-        #current-video { font-size: 24px; color: #00ffcc; margin-bottom: 10px; }
-        #status-text { color: #aaa; font-size: 16px; }
-        #choices-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
         
         #choices-container {
             width: 90%;
@@ -61,7 +57,6 @@
             font-weight: bold;
             cursor: pointer;
             color: White;
-
             border: none;
             border-radius: 5px;
             transition: all 0.3s ease;
@@ -80,22 +75,21 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
+
+        #history-log { margin-top: 20px; color: white; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div id="player-container">
-    <div id="status-text" style="display: none;"></div>
-    <video id="main-video" controls muted>
-        Your browser does not support the video tag.
-    </video>
+        <video id="main-video" controls muted>
+            Your browser does not support the video tag.
+        </video>
     </div>
 
     <div id="choices-container"></div>
 
-    <button class="reset-btn" onclick="initApp()" style="display: none;" id="reset-btn">Replay</button>
-
-    <p>
+    <button class="reset-btn" onclick="initApp()" style="display: none; margin-top: 0px;" id="reset-btn">Replay</button>
 
     <div id="history-log">選択肢：なし</div>
 
@@ -114,11 +108,9 @@
         let logicHistory = [];
         let currentStep = 1;
 
-        const currentVideoEl = document.getElementById('current-video');
         const choicesContainer = document.getElementById('choices-container');
         const historyLog = document.getElementById('history-log');
         const resetBtn = document.getElementById('reset-btn');
-        const statusText = document.getElementById('status-text');
 
         function initApp() {
             logicHistory = [];   
@@ -126,10 +118,8 @@
             currentStep = 1;
             
             updateHistoryLog(); 
-            
             updateVideo("./title_t12.mkv", "First Stage First Battle");
             
-            const resetBtn = document.getElementById('reset-btn');
             if (resetBtn) resetBtn.style.display = 'none';
             
             renderChoices([
@@ -140,22 +130,16 @@
 
         function updateVideo(file, status) {
             const video = document.getElementById('main-video');
-
             video.src = file;
             
+            video.setAttribute('aria-label', status);
+            
             video.load();
-
             const playPromise = video.play();
-
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
-                    console.log("Autoplay has been blocked. Please click the player button manually.");
+                    console.log("Autoplay blocked.");
                 });
-            }
-
-            const statusEl = document.getElementById('status-text');
-            if (statusEl) {
-                statusEl.innerText = status;
             }
         }
 
@@ -163,12 +147,10 @@
             choicesContainer.innerHTML = '';
             choices.forEach(choice => {
                 const btn = document.createElement('button');
-                
                 const displayText = labelMap[choice.id] || choice.id;
                 
-                btn.innerText = `${displayText}`;
+                btn.innerText = displayText;
                 btn.setAttribute('data-id', choice.id); 
-                btn.title = `Path: ${choice.file}`; 
                 
                 btn.onclick = () => handleChoice(choice.id, choice.file);
                 choicesContainer.appendChild(btn);
@@ -180,15 +162,16 @@
         }
 
         function handleChoice(choiceId, file) {
+            const video = document.getElementById('main-video');
+            video.muted = false; 
+
             logicHistory.push(choiceId); 
             displayHistory.push(labelMap[choiceId] || choiceId); 
-            
-            const historyLog = document.getElementById('history-log');
-            historyLog.innerText = `選択肢：${displayHistory.join(' ➔ ')}`;
+            updateHistoryLog();
 
             if (currentStep === 1) {
                 updateVideo(file, "First Stage Second Battle");
-                currentStep++;
+                currentStep = 2;
                 renderChoices([
                     { id: 'MTC', file: './title_t09.mkv' },
                     { id: 'DH', file: './title_t08.mkv' }
@@ -196,19 +179,29 @@
             } 
             else if (currentStep === 2) {
                 updateVideo(file, "First Stage Third Battle");
-                currentStep++;
+                currentStep = 3;
                 renderChoices([
-                    { id: 'FP', file: './title_t57.mkv' },
+                    { id: 'FP', file: './title_t56.mkv' },
                     { id: 'MTR', file: './title_t55.mkv' }
                 ]);
             } 
             else if (currentStep === 3) {
-                handleThirdChoiceOutcome();
-            }
-            else if (currentStep === 4) {
-                handleFourthChoiceOutcome(choiceId);
+                updateVideo(file, "First Stage Third Battle Result");
+                currentStep = 4; 
+                
+                choicesContainer.innerHTML = '';
+                const nextBtn = document.createElement('button');
+                nextBtn.innerText = 'Second Stage';
+                nextBtn.className = 'next-btn';
+                nextBtn.onclick = () => {
+                    handleThirdChoiceOutcome();
+                };
+                choicesContainer.appendChild(nextBtn);
             }
             else if (currentStep === 5) {
+                handleFourthChoiceOutcome(choiceId);
+            }
+            else if (currentStep === 6) {
                 updateVideo(file, "Ending");
                 choicesContainer.innerHTML = '';
                 resetBtn.style.display = 'block';
@@ -216,9 +209,9 @@
         }
 
         function handleThirdChoiceOutcome() {
-
             const path = logicHistory.join(',');
-            currentStep++;
+            currentStep = 5; 
+            
             let jumpFile = '';
             let nextChoices = [];
 
@@ -236,7 +229,7 @@
                 nextChoices = [{id:'BB', file:'./title_t51.mkv'}, {id:'DH', file:'./title_t41.mkv'}, {id:'MTR', file:'./title_t33.mkv'}];
             } else if (path === 'BAT,MTC,FP') {
                 jumpFile = './title_t03.mkv';
-                nextChoices = [{id:'BAT', file:'./title_t59.mkv'}, {id:'MTC', file:'./title_t44.mkv'}, {id:'FP', file:'./title_t36.mkv'}];
+                nextChoices = [{id:'BAT', file:'./title_t50.mkv'}, {id:'MTC', file:'./title_t44.mkv'}, {id:'FP', file:'./title_t36.mkv'}];
             } else if (path === 'BAT,MTC,MTR') {
                 jumpFile = './title_t02.mkv';
                 nextChoices = [{id:'BAT', file:'./title_t49.mkv'}, {id:'MTC', file:'./title_t43.mkv'}, {id:'MTR', file:'./title_t32.mkv'}];
@@ -248,12 +241,12 @@
                 nextChoices = [{id:'BB', file:'./title_t53.mkv'}, {id:'MTC', file:'./title_t45.mkv'}, {id:'MTR', file:'./title_t34.mkv'}];
             }
 
-            updateVideo(jumpFile, "Second Stage");
+            updateVideo(jumpFile, "Second Stage Outcome");
             renderChoices(nextChoices);
         }
 
         function handleFourthChoiceOutcome(choice4) {
-            currentStep++;
+            currentStep = 6; 
             let jumpFile = '';
             let nextChoices = [];
 
@@ -267,14 +260,18 @@
             };
 
             const res = mapping[choice4];
-            updateVideo(res.jump, `Final Stage`);
-            renderChoices(res.next.map(item => ({ id: item.id, file: item.f })));
+            if (res) {
+                updateVideo(res.jump, "Final Stage");
+                renderChoices(res.next.map(item => ({ id: item.id, file: item.f })));
+            }
         }
 
         initApp();
     </script>
 </body>
-<!--
+
+ <!--
+
 0_OP-BBxBAT_title_t12.mkv
 
 1_BAT-MTCxDH_title_t10.mkv
@@ -345,5 +342,7 @@
 
 x_title_t02.mkv
 x_title_t57.mkv
--->
+
+--> 
+
 </html>
