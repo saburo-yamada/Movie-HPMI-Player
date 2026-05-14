@@ -5,31 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>映画『ヒプノシスマイク - Division Rap Battle -』プレーヤー</title>
     <style>
+            html, body {
+            height: 100%;
+            margin: 0;
+            overflow: scroll;
+        }
+
         body {
             font-family: "Microsoft JhengHei", Arial, sans-serif;
             background-color: #1e1e1e;
             color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-        }
+        
         #player-container {
-            width: 95%;
-            max-width: 1200px;
+            width: 100%;
+            max-width: 100%;
             aspect-ratio: 16 / 9;
             background-color: #000;
-            margin: 0 auto 20px auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
             
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+
+        #interaction-area {
+            width: 90%;
+            max-width: 800px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
             justify-content: center;
-            overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         video {
@@ -40,8 +52,6 @@
         #current-video { font-size: 24px; color: #00ffcc; margin-bottom: 10px; }
         #status-text { color: #aaa; font-size: 16px; }
         #choices-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-        
-
         
         button {
             background-color: #333333;
@@ -74,7 +84,7 @@
 <body>
 
     <div id="player-container">
-    <div id="status-text">Now Playing</div>
+    <div id="status-text" style="display: none;"></div>
     <video id="main-video" controls muted>
         Your browser does not support the video tag.
     </video>
@@ -263,4 +273,76 @@
         initApp();
     </script>
 </body>
+<!--
+0_OP-BBxBAT_title_t12.mkv
+
+1_BAT-MTCxDH_title_t10.mkv
+1_BB-MTCxDH_title_t11.mkv
+
+2_DH-MTRxFP_title_t08.mkv
+2_MTC-MTRxFP_title_t09.mkv
+
+3_FP_title_t56.mkv
+3_MTR_title_t55.mkv
+
+4_DHxBATxFP_title_t01.mkv
+4_DHxBATxMTR_title_t00.mkv
+4_DHxBBxFP_title_t05.mkv
+4_DHxBBxMTR_title_t04.mkv
+4_MTCxBATxFP_title_t03.mkv
+4_MTCxBATxMTR_title_t02.mkv
+4_MTCxBBxFP_title_t07.mkv
+4_MTCxBBxMTR_title_t06.mkv
+
+5_BAT-DHxFP_title_t48.mkv
+5_BAT-DHxMTR_title_t47.mkv
+5_BAT-MTCxFP_title_t50.mkv
+5_BAT-MTCxMTR_title_t49.mkv
+5_BB-DHxFP_title_t52.mkv
+5_BB-DHxMTR_title_t51.mkv
+5_BB-MTCxFP_title_t54.mkv
+5_BB-MTCxMTR_title_t53.mkv
+5_DH-BATxFP_title_t40.mkv
+5_DH-BATxMTR_title_t39.mkv
+5_DH-BBxFP_title_t42.mkv
+5_DH-BBxMTR_title_t41.mkv
+5_FP-BATxDH_title_t35.mkv
+5_FP-BATxMTC_title_t36.mkv
+5_FP-BBxDH_title_t37.mkv
+5_FP-BBxMTC_title_t38.mkv
+5_MTC-BATxFP_title_t44.mkv
+5_MTC-BATxMTR_title_t43.mkv
+5_MTC-BBxFP_title_t46.mkv
+5_MTC-BBxMTR_title_t45.mkv
+5_MTR-BATxDH_title_t31.mkv
+5_MTR-BATxMTC_title_t32.mkv
+5_MTR-BBxDH_title_t33.mkv
+5_MTR-BBxMTC_title_t34.mkv
+
+6_BAT_title_t29.mkv
+6_BB_title_t30.mkv
+6_DH_title_t27.mkv
+6_FP_title_t26.mkv
+6_MTC_title_t28.mkv
+6_MTR_title_t25.mkv
+
+7_BAT_title_t23.mkv
+7_BB_title_t24.mkv
+7_COKxBAT_title_t17.mkv
+7_COKxBB_title_t18.mkv
+7_COKxDH_title_t15.mkv
+7_COKxFP_title_t14.mkv
+7_COKxMTC_title_t16.mkv
+7_COKxMTR_title_t13.mkv
+7_DH_title_t21.mkv
+7_FP_title_t20.mkv
+7_MTC_title_t22.mkv
+7_MTR_title_t19.mkv
+
+8_ED-MIC AS ONE_title_t01.mkv
+8_MUSIC CHAPTER LIST_title_t00.mkv
+
+x_title_t02.mkv
+x_title_t57.mkv
+-->
 </html>
